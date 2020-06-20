@@ -209,6 +209,7 @@ class Model:
             print("Initializing from scratch.")
 
     def train(self, train, val=None):
+        print("Training")
         config = self.config
         step_per_epoch = config.STEPS_PER_EPOCH
         step_per_epoch_val = config.STEPS_PER_EPOCH_VAL

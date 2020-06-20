@@ -47,6 +47,7 @@ class Dataset():
         dataset = dataset.shuffle(shuffle_buffer_size).repeat(-1)
         dataset = dataset.map(map_func=self.parse_fn, num_parallel_calls=autotune)
         dataset = dataset.batch(batch_size=self.config.BATCH_SIZE).prefetch(buffer_size=autotune)
+        print("Loaded data set of size {} for training".format(len(data_samples)))
         return dataset
 
     def inputs_for_testing(self):
@@ -59,6 +60,7 @@ class Dataset():
         dataset = tf.data.Dataset.from_tensor_slices(data_samples)
         dataset = dataset.map(map_func=self.parse_fn, num_parallel_calls=autotune)
         dataset = dataset.batch(batch_size=self.config.BATCH_SIZE).prefetch(buffer_size=autotune)
+        print("Loaded data set of size {} for testing".format(len(data_samples)))
         return dataset, data_samples
 
     def parse_fn(self, file):
