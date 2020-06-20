@@ -40,7 +40,7 @@ class Dataset():
             data_dir = self.config.DATA_DIR_VAL
         data_samples = []
         for _dir in data_dir:
-            _list = glob.glob(_dir+'/*.dat')
+            _list = glob.glob(_dir + '/*.dat')
             data_samples += _list
         shuffle_buffer_size = len(data_samples)
         dataset = tf.data.Dataset.from_tensor_slices(data_samples)
@@ -73,9 +73,10 @@ class Dataset():
             dmap_bytes = dmap_size * dmap_size
             bin = np.fromfile(_file, dtype='uint8')
             image = np.transpose(bin[0:image_bytes].reshape((3, image_size, image_size)) / 255, (1, 2, 0))
-            dmap  = np.transpose(bin[image_bytes:image_bytes+dmap_bytes].reshape((1, dmap_size, dmap_size)) / 255, (1, 2, 0))
-            label = bin[image_bytes+dmap_bytes:image_bytes+dmap_bytes+label_size] / 1
-            dmap1 = dmap * (1-label)
+            dmap = np.transpose(bin[image_bytes:image_bytes + dmap_bytes].reshape((1, dmap_size, dmap_size)) / 255,
+                                (1, 2, 0))
+            label = bin[image_bytes + dmap_bytes:image_bytes + dmap_bytes + label_size] / 1
+            dmap1 = dmap * (1 - label)
             dmap2 = np.ones_like(dmap) * label
             dmap = np.concatenate([dmap1, dmap2], axis=2)
 
@@ -83,6 +84,6 @@ class Dataset():
 
         image_ts, dmap_ts, label_ts = tf.numpy_function(_parse_function, [file], [tf.float32, tf.float32, tf.float32])
         image_ts = tf.ensure_shape(image_ts, [config.IMAGE_SIZE, config.IMAGE_SIZE, 3])
-        dmap_ts  = tf.ensure_shape(dmap_ts,  [config.MAP_SIZE, config.MAP_SIZE, 2])
+        dmap_ts = tf.ensure_shape(dmap_ts, [config.MAP_SIZE, config.MAP_SIZE, 2])
         label_ts = tf.ensure_shape(label_ts, [1])
         return image_ts, dmap_ts, label_ts

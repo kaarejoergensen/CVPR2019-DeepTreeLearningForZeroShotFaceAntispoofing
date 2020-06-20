@@ -18,28 +18,27 @@ DTN for Zero-shot Face Anti-spoofing
 Losses class.
 
 """
-import tensorflow as tf
-import tensorflow.keras.layers as layers
 import numpy as np
+import tensorflow as tf
 
 
 def l1_loss(x, y, mask=None):
     xshape = x.shape
     if mask is not None:
-        loss = tf.reduce_mean(tf.reshape(tf.abs(x-y), [xshape[0], -1]), axis=1, keepdims=True)
+        loss = tf.reduce_mean(tf.reshape(tf.abs(x - y), [xshape[0], -1]), axis=1, keepdims=True)
         loss = tf.reduce_sum(loss * mask) / (tf.reduce_sum(mask) + 1e-8)
     else:
-        loss = tf.reduce_mean(tf.abs(x-y))
+        loss = tf.reduce_mean(tf.abs(x - y))
     return loss
 
 
 def l2_loss(x, y, mask=None):
     xshape = x.shape
     if mask is None:
-        loss = tf.reduce_mean(tf.reshape(tf.square(x-y), [xshape[0], -1]), axis=1, keepdims=True)
+        loss = tf.reduce_mean(tf.reshape(tf.square(x - y), [xshape[0], -1]), axis=1, keepdims=True)
         loss = tf.reduce_sum(loss * mask) / (tf.reduce_sum(mask) + 1e-8)
     else:
-        loss = tf.reduce_mean(tf.square(x-y))
+        loss = tf.reduce_mean(tf.square(x - y))
     return loss
 
 
@@ -47,7 +46,7 @@ def leaf_l1_loss(xlist, y, masklist):
     loss_list = []
     xshape = xlist[0].shape
     for x, mask in zip(xlist, masklist):
-        loss = tf.reduce_mean(tf.reshape(tf.abs(x-y), [xshape[0], -1]), axis=1)
+        loss = tf.reduce_mean(tf.reshape(tf.abs(x - y), [xshape[0], -1]), axis=1)
         # tag of spoof
         tag = tf.reduce_sum(mask[:, 0])
         tag = tag / (tag + 1e-8)
@@ -57,8 +56,8 @@ def leaf_l1_loss(xlist, y, masklist):
         # live
         live_loss = tf.reduce_sum(loss * mask[:, 1]) / (tf.reduce_sum(mask[:, 1]) + 1e-8)
 
-        total_loss = (spoof_loss + live_loss)/2
-        loss_list.append(total_loss*tag)
+        total_loss = (spoof_loss + live_loss) / 2
+        loss_list.append(total_loss * tag)
     loss = tf.reduce_mean(loss_list)
     return loss
 
@@ -70,7 +69,7 @@ def leaf_l2_loss(xlist, y, masklist):
         print(x.shape, y.shape, mask.shape)
         input()
         # spoof
-        spoof_loss = tf.reduce_mean(tf.reshape(tf.square(x-y), [xshape[0], -1]), axis=1)
+        spoof_loss = tf.reduce_mean(tf.reshape(tf.square(x - y), [xshape[0], -1]), axis=1)
         spoof_loss = tf.reduce_sum(loss * mask[:, 0]) / (tf.reduce_sum(mask[:, 0]) + 1e-8)
         # live
         live_loss = tf.reduce_mean(tf.reshape(tf.square(x - y), [xshape[0], -1]), axis=1)
@@ -79,6 +78,7 @@ def leaf_l2_loss(xlist, y, masklist):
         loss_list.append(loss)
 
     return loss
+
 
 def leaf_l1_score(xlist, masklist, ch=None):
     loss_list = []

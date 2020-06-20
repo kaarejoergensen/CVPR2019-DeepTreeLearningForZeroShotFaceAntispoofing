@@ -23,15 +23,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
 import time
-import math
+
+import cv2
+import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
-import numpy as np
-import cv2
-from model.utils import CRU, TRU, SFL, Conv, Downsample, Error
-from model.loss import l1_loss, l2_loss, leaf_l1_loss, leaf_l2_loss, leaf_l1_score
+
+from model.loss import leaf_l1_loss
+from model.utils import CRU, TRU, SFL, Conv, Error
 
 
 ############################################################
@@ -152,13 +152,13 @@ class DTN(tf.keras.models.Model):
                           tru000_loss[0], tru001_loss[0], tru010_loss[0], tru011_loss[0]]
             recon_loss = [tru0_loss[1], tru00_loss[1], tru01_loss[1],
                           tru000_loss[1], tru001_loss[1], tru010_loss[1], tru011_loss[1]]
-            mu_update = [self.tru0.project.mu_of_visit+0,
-                         self.tru1.project.mu_of_visit+0,
-                         self.tru2.project.mu_of_visit+0,
-                         self.tru3.project.mu_of_visit+0,
-                         self.tru4.project.mu_of_visit+0,
-                         self.tru5.project.mu_of_visit+0,
-                         self.tru6.project.mu_of_visit+0]
+            mu_update = [self.tru0.project.mu_of_visit + 0,
+                         self.tru1.project.mu_of_visit + 0,
+                         self.tru2.project.mu_of_visit + 0,
+                         self.tru3.project.mu_of_visit + 0,
+                         self.tru4.project.mu_of_visit + 0,
+                         self.tru5.project.mu_of_visit + 0,
+                         self.tru6.project.mu_of_visit + 0]
             eigenvalue = [self.tru0.project.eigenvalue,
                           self.tru1.project.eigenvalue,
                           self.tru2.project.eigenvalue,
@@ -225,7 +225,7 @@ class Model:
             self.dtn_op = tf.compat.v1.train.AdamOptimizer(config.LEARNING_RATE, beta1=0.5)
             ''' train phase'''
             for step in range(step_per_epoch):
-                depth_map_loss, class_loss, route_loss, uniq_loss, spoof_counts, eigenvalue, trace, _to_plot =\
+                depth_map_loss, class_loss, route_loss, uniq_loss, spoof_counts, eigenvalue, trace, _to_plot = \
                     self.train_one_step(next(it), global_step, True)
                 # display loss
                 global_step += 1
@@ -237,7 +237,7 @@ class Model:
                              self.route_loss(route_loss), eigenvalue, trace,
                              self.uniq_loss(uniq_loss),
                              spoof_counts[0], spoof_counts[1], spoof_counts[2], spoof_counts[3],
-                             spoof_counts[4], spoof_counts[5], spoof_counts[6], spoof_counts[7],), end='\r')
+                             spoof_counts[4], spoof_counts[5], spoof_counts[6], spoof_counts[7], ), end='\r')
                 # plot the figure
                 '''if (step + 1) % 400 == 0:
                     fname = self.config.LOG_DIR + '/epoch-' + str(epoch + 1) + '-train-' + str(step + 1) + '.png'
@@ -251,7 +251,7 @@ class Model:
             ''' eval phase'''
             if val is not None:
                 for step in range(step_per_epoch_val):
-                    depth_map_loss, class_loss, route_loss, uniq_loss, spoof_counts, eigenvalue, trace, _to_plot =\
+                    depth_map_loss, class_loss, route_loss, uniq_loss, spoof_counts, eigenvalue, trace, _to_plot = \
                         self.train_one_step(next(it_val), global_step, False)
                     # display something
                     print('    Val-{:d}/{:d}: Map:{:.3g}, Cls:{:.3g}, Route:{:.3g}({:3.3f}, {:3.3f}), Uniq:{:.3g}, '
@@ -281,20 +281,20 @@ class Model:
         dtn_op = self.dtn_op
         image, dmap, labels = data_batch
         with tf.GradientTape() as tape:
-            dmap_pred, cls_pred, route_value, leaf_node_mask, tru_loss, mu_update, eigenvalue, trace =\
+            dmap_pred, cls_pred, route_value, leaf_node_mask, tru_loss, mu_update, eigenvalue, trace = \
                 dtn(image, labels, True)
 
             # supervised feature loss
             depth_map_loss = leaf_l1_loss(dmap_pred, tf.image.resize(dmap, [32, 32]), leaf_node_mask)
             class_loss = leaf_l1_loss(cls_pred, labels, leaf_node_mask)
-            supervised_loss = depth_map_loss + 0.001*class_loss
+            supervised_loss = depth_map_loss + 0.001 * class_loss
 
             # unsupervised tree loss
             route_loss = tf.reduce_mean(tf.stack(tru_loss[0], axis=0) * [1., 0.5, 0.5, 0.25, 0.25, 0.25, 0.25])
-            uniq_loss  = tf.reduce_mean(tf.stack(tru_loss[1], axis=0) * [1., 0.5, 0.5, 0.25, 0.25, 0.25, 0.25])
+            uniq_loss = tf.reduce_mean(tf.stack(tru_loss[1], axis=0) * [1., 0.5, 0.5, 0.25, 0.25, 0.25, 0.25])
             eigenvalue = np.mean(np.stack(eigenvalue, axis=0) * [1., 0.5, 0.5, 0.25, 0.25, 0.25, 0.25])
             trace = np.mean(np.stack(trace, axis=0) * [1., 0.5, 0.5, 0.25, 0.25, 0.25, 0.25])
-            unsupervised_loss = 2*route_loss + 0.001*uniq_loss
+            unsupervised_loss = 2 * route_loss + 0.001 * uniq_loss
 
             # total loss
             if step > 10000:

@@ -18,8 +18,8 @@ DTN for Zero-shot Face Anti-spoofing
 Base Configurations class.
 
 """
-import numpy as np
 import tensorflow as tf
+
 
 # Base Configuration Class
 class Config(object):
@@ -46,10 +46,10 @@ class Config(object):
     # Training Meta
     STEPS_PER_EPOCH = 1000
     MAX_EPOCH = 40
-    NUM_EPOCHS_PER_DECAY = 12.0   # Epochs after which learning rate decays
+    NUM_EPOCHS_PER_DECAY = 12.0  # Epochs after which learning rate decays
     BATCH_SIZE = 32
-    LEARNING_RATE = 0.001          # Initial learning rate.
-    LEARNING_MOMENTUM = 0.999     # The decay to use for the moving average.
+    LEARNING_RATE = 0.001  # Initial learning rate.
+    LEARNING_MOMENTUM = 0.999  # The decay to use for the moving average.
 
     def __init__(self):
         """Set values of computed attributes."""

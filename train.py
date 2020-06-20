@@ -17,21 +17,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys
-from datetime import datetime
-import time
-
-import tensorflow as tf
-from model.dataset import Dataset
 from model.config import Config
+from model.dataset import Dataset
 from model.model import Model
 
 
 def main(argv=None):
     # Configurations
     config = Config()
-    config.DATA_DIR = ['/data/']
-    config.LOG_DIR = './log/model'
+    config.DATA_DIR = ['/work3/s144852/siw']
+    config.LOG_DIR = './logs/model'
     config.MODE = 'training'
     config.STEPS_PER_EPOCH_VAL = 180
     config.display()
@@ -44,5 +39,6 @@ def main(argv=None):
     # Train the model
     model.compile()
     model.train(dataset_train, None)
+
 
 main()

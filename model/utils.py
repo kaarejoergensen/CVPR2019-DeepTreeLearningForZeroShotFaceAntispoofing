@@ -20,8 +20,6 @@ DTN Basic Blocks class.
 """
 import tensorflow as tf
 import tensorflow.keras.layers as layers
-import numpy as np
-from model.loss import l1_loss, l2_loss
 
 
 class Error:
@@ -54,9 +52,9 @@ class Linear(layers.Layer):
         initializer = tf.random_normal_initializer(0., 0.02)
         initializer0 = tf.zeros_initializer()
         self.v = tf.Variable(initial_value=initializer(shape=(1, input_dim), dtype='float32'),
-                             trainable=True, name='tru/v/'+idx)
+                             trainable=True, name='tru/v/' + idx)
         self.mu = tf.Variable(initial_value=initializer0(shape=(1, input_dim), dtype='float32'),
-                              trainable=True, name='tru/mu/'+idx)
+                              trainable=True, name='tru/mu/' + idx)
         # training hyper-parameters
         self.alpha = alpha
         self.beta = beta
@@ -86,7 +84,7 @@ class Linear(layers.Layer):
             # print(tf.exp(-self.alpha * eigenvalue), self.beta * trace)
             route_loss = tf.exp(-self.alpha * eigenvalue) + self.beta * trace
             uniq_loss = -tf.reduce_mean(tf.square(tf.matmul(x_sub, norm_v_t))) + \
-                         tf.reduce_mean(tf.square(tf.matmul(x_not, norm_v_t)))
+                        tf.reduce_mean(tf.square(tf.matmul(x_not, norm_v_t)))
             # compute mean and response for this batch
             self.mu_of_visit = tf.reduce_mean(x_sub, axis=0, keepdims=True)
             self.eigenvalue = eigenvalue
@@ -251,8 +249,8 @@ class CRU(tf.keras.Model):
         _x = tf.nn.leaky_relu(_x)
         _x = self.conv2(_x)
         _x = self.batchnorm2(_x, training=training)
-        _x  = x + _x
-        x  = tf.nn.leaky_relu(_x)
+        _x = x + _x
+        x = tf.nn.leaky_relu(_x)
 
         # second residual block
         _x = self.conv3(x)
@@ -279,7 +277,6 @@ class TRU(tf.keras.Model):
         self.conv3 = Downsample(filters, size)
         self.flatten = layers.Flatten()
         self.project = Linear(idx, alpha, beta, input_dim=2048)
-
 
     def call(self, x, mask, training):
         # Downsampling
@@ -314,10 +311,10 @@ class SFL(tf.keras.Model):
         self.conv1 = Conv(2, size, activation=False, apply_batchnorm=False)
 
         # class
-        self.conv2 = Downsample(filters*1, size)
-        self.conv3 = Downsample(filters*1, size)
-        self.conv4 = Downsample(filters*2, size)
-        self.conv5 = Downsample(filters*4, 4, padding='VALID')
+        self.conv2 = Downsample(filters * 1, size)
+        self.conv3 = Downsample(filters * 1, size)
+        self.conv4 = Downsample(filters * 2, size)
+        self.conv5 = Downsample(filters * 4, 4, padding='VALID')
         self.flatten = layers.Flatten()
         self.fc1 = Dense(256)
         self.fc2 = Dense(1, activation=False, apply_batchnorm=False)
@@ -339,4 +336,3 @@ class SFL(tf.keras.Model):
         x = self.fc1(x)
         cls = self.fc2(x)
         return dmap, cls
-
