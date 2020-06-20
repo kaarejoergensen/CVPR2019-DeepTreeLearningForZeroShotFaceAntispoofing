@@ -81,7 +81,7 @@ class Linear(layers.Layer):
             eigenvalue = tf.reshape(tf.matmul(tf.matmul(norm_v, covar), norm_v_t), [])
             trace = tf.linalg.trace(covar)
             # compute the route loss
-            # print(tf.exp(-self.alpha * eigenvalue), self.beta * trace)
+            # logging.info(tf.exp(-self.alpha * eigenvalue), self.beta * trace)
             route_loss = tf.exp(-self.alpha * eigenvalue) + self.beta * trace
             uniq_loss = -tf.reduce_mean(tf.square(tf.matmul(x_sub, norm_v_t))) + \
                         tf.reduce_mean(tf.square(tf.matmul(x_not, norm_v_t)))

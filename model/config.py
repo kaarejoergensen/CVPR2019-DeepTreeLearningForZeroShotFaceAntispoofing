@@ -18,6 +18,10 @@ DTN for Zero-shot Face Anti-spoofing
 Base Configurations class.
 
 """
+import logging
+import os
+from logging.handlers import RotatingFileHandler
+
 import tensorflow as tf
 
 
@@ -52,17 +56,29 @@ class Config(object):
     LEARNING_MOMENTUM = 0.999  # The decay to use for the moving average.
 
     def __init__(self):
+        logging_path = './logs'
+        if not os.path.exists(logging_path):
+            os.mkdir(logging_path)
+        file_path = "{}/main.log".format(logging_path)
+        rotating_file_handler = RotatingFileHandler(filename=file_path, backupCount=5)
+        if os.path.isfile(file_path):
+            rotating_file_handler.doRollover()
+        logging.basicConfig(level=logging.DEBUG,
+                            format="%(asctime)s [%(levelname)s] %(message)s",
+                            handlers=[
+                                rotating_file_handler,
+                                logging.StreamHandler()
+                            ])
         """Set values of computed attributes."""
         gpus = tf.config.experimental.list_physical_devices('GPU')
         if gpus:
-            print("Using {} gpus".format(gpus))
+            logging.info("Using {} gpus".format(gpus))
         else:
-            print("Not using gpu")
+            logging.info("Not using gpu")
 
     def display(self):
         """Display Configuration values."""
-        print("\nConfigurations:")
+        logging.info("Configurations:")
         for a in dir(self):
             if not a.startswith("__") and not callable(getattr(self, a)):
-                print("{:30} {}".format(a, getattr(self, a)))
-        print("\n")
+                logging.info("{:30} {}".format(a, getattr(self, a)))

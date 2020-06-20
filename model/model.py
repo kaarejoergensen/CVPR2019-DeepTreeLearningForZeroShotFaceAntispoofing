@@ -23,6 +23,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import logging
 import time
 
 import cv2
@@ -204,12 +205,12 @@ class Model:
         checkpoint.restore(last_checkpoint)
         if last_checkpoint:
             self.last_epoch = int(last_checkpoint.split('-')[-1])
-            print("Restored from {}".format(last_checkpoint))
+            logging.info("Restored from {}".format(last_checkpoint))
         else:
-            print("Initializing from scratch.")
+            logging.info("Initializing from scratch.")
 
     def train(self, train, val=None):
-        print("Training")
+        logging.info("Training")
         config = self.config
         step_per_epoch = config.STEPS_PER_EPOCH
         step_per_epoch_val = config.STEPS_PER_EPOCH_VAL
@@ -230,7 +231,7 @@ class Model:
                     self.train_one_step(next(it), global_step, True)
                 # display loss
                 global_step += 1
-                print('Epoch {:d}-{:d}/{:d}: Map:{:.3g}, Cls:{:.3g}, Route:{:.3g}({:3.3f}, {:3.3f}), Uniq:{:.3g}, '
+                logging.info('Epoch {:d}-{:d}/{:d}: Map:{:.3g}, Cls:{:.3g}, Route:{:.3g}({:3.3f}, {:3.3f}), Uniq:{:.3g}, '
                       'Counts:[{:d},{:d},{:d},{:d},{:d},{:d},{:d},{:d}]     '.
                       format(epoch + 1, step + 1, step_per_epoch,
                              self.depth_map_loss(depth_map_loss),
@@ -247,7 +248,7 @@ class Model:
             # save the model
             if (epoch + 1) % 1 == 0:
                 self.checkpoint_manager.save(checkpoint_number=epoch + 1)
-            print('\n', end='\r')
+            logging.info('\n', end='\r')
 
             ''' eval phase'''
             if val is not None:
@@ -255,7 +256,7 @@ class Model:
                     depth_map_loss, class_loss, route_loss, uniq_loss, spoof_counts, eigenvalue, trace, _to_plot = \
                         self.train_one_step(next(it_val), global_step, False)
                     # display something
-                    print('    Val-{:d}/{:d}: Map:{:.3g}, Cls:{:.3g}, Route:{:.3g}({:3.3f}, {:3.3f}), Uniq:{:.3g}, '
+                    logging.info('    Val-{:d}/{:d}: Map:{:.3g}, Cls:{:.3g}, Route:{:.3g}({:3.3f}, {:3.3f}), Uniq:{:.3g}, '
                           'Counts:[{:d},{:d},{:d},{:d},{:d},{:d},{:d},{:d}]     '.
                           format(step + 1, step_per_epoch_val,
                                  self.depth_map_loss(depth_map_loss, val=1),
@@ -274,7 +275,7 @@ class Model:
                 self.uniq_loss.reset()
 
             # time of one epoch
-            print('\n    Time taken for epoch {} is {:3g} sec'.format(epoch + 1, time.time() - start))
+            logging.info('\n    Time taken for epoch {} is {:3g} sec'.format(epoch + 1, time.time() - start))
         return 0
 
     def train_one_step(self, data_batch, step, training):
