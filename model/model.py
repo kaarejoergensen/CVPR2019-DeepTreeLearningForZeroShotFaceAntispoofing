@@ -239,7 +239,7 @@ class Model:
                              self.route_loss(route_loss), eigenvalue, trace,
                              self.uniq_loss(uniq_loss),
                              spoof_counts[0], spoof_counts[1], spoof_counts[2], spoof_counts[3],
-                             spoof_counts[4], spoof_counts[5], spoof_counts[6], spoof_counts[7], ), end='\r')
+                             spoof_counts[4], spoof_counts[5], spoof_counts[6], spoof_counts[7]))
                 # plot the figure
                 # if (step + 1) % 400 == 0:
                 #     fname = self.config.LOG_DIR + '/epoch-' + str(epoch + 1) + '-train-' + str(step + 1) + '.png'
@@ -248,7 +248,6 @@ class Model:
             # save the model
             if (epoch + 1) % 1 == 0:
                 self.checkpoint_manager.save(checkpoint_number=epoch + 1)
-            logging.info('\n', end='\r')
 
             ''' eval phase'''
             if val is not None:
@@ -264,7 +263,7 @@ class Model:
                                  self.route_loss(route_loss, val=1), eigenvalue, trace,
                                  self.recon_loss(uniq_loss, val=1),
                                  spoof_counts[0], spoof_counts[1], spoof_counts[2], spoof_counts[3],
-                                 spoof_counts[4], spoof_counts[5], spoof_counts[6], spoof_counts[7], ), end='\r')
+                                 spoof_counts[4], spoof_counts[5], spoof_counts[6], spoof_counts[7]))
                     # plot the figure
                     # if (step + 1) % 100 == 0:
                     #     fname = self.config.LOG_DIR + '/epoch-' + str(epoch + 1) + '-val-' + str(step+1) + '.png'
@@ -275,7 +274,7 @@ class Model:
                 self.uniq_loss.reset()
 
             # time of one epoch
-            logging.info('\n    Time taken for epoch {} is {:3g} sec'.format(epoch + 1, time.time() - start))
+            logging.info('Time taken for epoch {} is {:3g} sec'.format(epoch + 1, time.time() - start))
         return 0
 
     def train_one_step(self, data_batch, step, training):
