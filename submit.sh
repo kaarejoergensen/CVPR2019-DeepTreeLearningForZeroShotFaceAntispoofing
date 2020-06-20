@@ -25,8 +25,8 @@
 #BSUB -N
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
-#BSUB -oo log/nn_training.out
-#BSUB -eo log/nn_training.out
+#BSUB -oo logs/nn_training.out
+#BSUB -eo logs/nn_training.out
 
 
 source /dtu/sw/dcc/dcc-sw.bash
