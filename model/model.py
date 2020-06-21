@@ -216,7 +216,7 @@ class Model:
             train_dirs = [d for d in dirs if d != dir]
             train = Dataset(self.config, 'train', train_dirs, dir)
             epochs = int((self.config.MAX_EPOCH + self.config.MAX_EPOCH % len(dirs)) / len(dirs))
-            self._train(train, epochs)
+            self._train(train, self.last_epoch + epochs)
             self.last_epoch += epochs
 
     def _train(self, train, epochs):
@@ -253,7 +253,7 @@ class Model:
 
             # save the model
             if (epoch + 1) % 1 == 0:
-                self.checkpoint_manager.save(checkpoint_number=epoch + 1)
+                self.checkpoint_manager.save(checkpoint_number=self.last_epoch + epoch + 1)
 
             ''' eval phase'''
             if train.feed_val is not None:
