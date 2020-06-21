@@ -217,6 +217,7 @@ class Model:
             train = Dataset(self.config, 'train', train_dirs, dir)
             epochs = int((self.config.MAX_EPOCH + self.config.MAX_EPOCH % len(dirs)) / len(dirs))
             self._train(train, epochs)
+            self.last_epoch += epochs
 
     def _train(self, train, epochs):
         logging.info("Training")
