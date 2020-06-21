@@ -31,7 +31,7 @@ class Dataset():
         if self.config.MODE == 'training':
             self.input_tensors = self.inputs_for_training(mode, data_dir)
             if data_dir_val is not None:
-                self.input_tensors_val = self.input_tensors([data_dir_val])
+                self.input_tensors_val = self.inputs_for_training(mode, [data_dir_val])
         else:
             self.input_tensors, self.name_list = self.inputs_for_testing()
         self.feed = iter(self.input_tensors)
