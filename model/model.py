@@ -31,6 +31,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
 
+from model.dataset import Dataset
 from model.loss import leaf_l1_loss
 from model.utils import CRU, TRU, SFL, Conv, Error
 
@@ -209,18 +210,22 @@ class Model:
         else:
             logging.info("Initializing from scratch.")
 
-    def train(self, train, val=None):
+    def train(self):
+        dirs = self.config.DATA_DIR
+        for dir in dirs:
+            train_dirs = [d for d in dirs if d != dir]
+            train = Dataset(self.config, 'train', train_dirs, dir)
+            epochs = int((self.config.MAX_EPOCH + self.config.MAX_EPOCH % len(dirs)) / len(dirs))
+            self._train(train, epochs)
+
+    def _train(self, train, epochs):
         logging.info("Training")
         config = self.config
         step_per_epoch = config.STEPS_PER_EPOCH
         step_per_epoch_val = config.STEPS_PER_EPOCH_VAL
-        epochs = config.MAX_EPOCH
 
         # data stream
-        it = train.feed
         global_step = self.last_epoch * step_per_epoch
-        if val is not None:
-            it_val = val.feed
         for epoch in range(self.last_epoch, epochs):
             start = time.time()
             # define the
@@ -228,7 +233,7 @@ class Model:
             ''' train phase'''
             for step in range(step_per_epoch):
                 depth_map_loss, class_loss, route_loss, uniq_loss, spoof_counts, eigenvalue, trace, _to_plot = \
-                    self.train_one_step(next(it), global_step, True)
+                    self.train_one_step(next(train.feed), global_step, True)
                 # display loss
                 global_step += 1
                 logging.info('Epoch {:d}-{:d}/{:d}: Map:{:.3g}, Cls:{:.3g}, Route:{:.3g}({:3.3f}, {:3.3f}), Uniq:{:.3g}, '
@@ -250,10 +255,10 @@ class Model:
                 self.checkpoint_manager.save(checkpoint_number=epoch + 1)
 
             ''' eval phase'''
-            if val is not None:
+            if train.feed_val is not None:
                 for step in range(step_per_epoch_val):
                     depth_map_loss, class_loss, route_loss, uniq_loss, spoof_counts, eigenvalue, trace, _to_plot = \
-                        self.train_one_step(next(it_val), global_step, False)
+                        self.train_one_step(next(train.feed_val), global_step, False)
                     # display something
                     logging.info('    Val-{:d}/{:d}: Map:{:.3g}, Cls:{:.3g}, Route:{:.3g}({:3.3f}, {:3.3f}), Uniq:{:.3g}, '
                           'Counts:[{:d},{:d},{:d},{:d},{:d},{:d},{:d},{:d}]     '.

@@ -33,26 +33,26 @@ def main(argv=None):
                        '/work3/s144852/siw/SiW_M_Mask_Mann_Binary_Files',
                        '/work3/s144852/siw/SiW_M_Replay_Binary_Files',
                        '/work3/s144852/siw/SiW_M_Partial_Cut_Binary_Files',
-                       '/work3/s144852/siw/SiW_M_Live_Binary_Files',
                        '/work3/s144852/siw/SiW_M_Mask_Half_Binary_Files',
                        '/work3/s144852/siw/SiW_M_Partial_Funnyeye_Binary_Files',
                        '/work3/s144852/siw/SiW_M_Partial_Paperglass_Binary_Files',
                        '/work3/s144852/siw/SiW_M_Mask_Trans_Binary_Files',
-                       '/work3/s144852/siw/SiW_M_Live_Test_Binary_Files',
                        '/work3/s144852/siw/SiW_M_Paper_Binary_Files']
+    config.DATA_DIR_LIVE = ['/work3/s144852/siw/SiW_M_Live_Binary_Files']
+    config.DATA_DIR_TEST = ['/work3/s144852/siw/SiW_M_Live_Test_Binary_Files']
     config.LOG_DIR = './logs/model'
     config.MODE = 'training'
     config.STEPS_PER_EPOCH_VAL = 180
     config.display()
 
     # Get images and labels.
-    dataset_train = Dataset(config, 'train')
+    # dataset_train = Dataset(config, 'train')
     # Build a Graph
     model = Model(config)
 
     # Train the model
     model.compile()
-    model.train(dataset_train, None)
+    model.train()
 
 
 main()

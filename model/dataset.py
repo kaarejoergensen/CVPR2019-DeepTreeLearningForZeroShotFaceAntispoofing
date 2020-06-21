@@ -26,20 +26,20 @@ import glob
 
 
 class Dataset():
-    def __init__(self, config, mode):
+    def __init__(self, config, mode, data_dir, data_dir_val=None):
         self.config = config
         if self.config.MODE == 'training':
-            self.input_tensors = self.inputs_for_training(mode)
+            self.input_tensors = self.inputs_for_training(mode, data_dir)
+            if data_dir_val is not None:
+                self.input_tensors_val = self.input_tensors([data_dir_val])
         else:
             self.input_tensors, self.name_list = self.inputs_for_testing()
         self.feed = iter(self.input_tensors)
+        if self.input_tensors_val is not None:
+            self.feed_val = iter(self.input_tensors_val)
 
-    def inputs_for_training(self, mode):
+    def inputs_for_training(self, mode, data_dir):
         autotune = tf.data.experimental.AUTOTUNE
-        if mode == 'train':
-            data_dir = self.config.DATA_DIR
-        else:
-            data_dir = self.config.DATA_DIR_VAL
         data_samples = []
         for _dir in data_dir:
             _list = glob.glob(_dir + '/*.dat')
