@@ -267,7 +267,7 @@ class Model:
                                  self.depth_map_loss(depth_map_loss, val=1),
                                  self.class_loss(class_loss, val=1),
                                  self.route_loss(route_loss, val=1), eigenvalue, trace,
-                                 self.recon_loss(uniq_loss, val=1),
+                                 self.uniq_loss(uniq_loss, val=1),
                                  spoof_counts[0], spoof_counts[1], spoof_counts[2], spoof_counts[3],
                                  spoof_counts[4], spoof_counts[5], spoof_counts[6], spoof_counts[7]))
                     # plot the figure
