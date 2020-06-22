@@ -214,29 +214,37 @@ class Model:
         dirs = self.config.DATA_DIR_TEST
         dataset = Dataset(self.config, 'test', dirs)
         for image, dmap, labels in dataset.feed:
-            cls_pred, route_value, leaf_node_mask = self.dtn(image, labels, False)
+            dmap_pred, cls_pred, route_value, leaf_node_mask = self.dtn(image, labels, False)
             # leaf counts
             spoof_counts = []
             for leaf in leaf_node_mask:
                 spoof_count = tf.reduce_sum(leaf[:, 0]).numpy()
                 spoof_counts.append(int(spoof_count))
-            logging.info("spoof_counts:{}"
-                         .format(spoof_counts))
+            cls_total = tf.math.add_n(cls_pred) / len(cls_pred)
+            index = 0
+            for label in tf.unstack(labels):
+                cls = cls_total[index].numpy()
+                if cls < 0.8 or cls > 1.2:
+                    logging.info("label: {}, cls: {}".format(label.numpy(), cls))
+                index += 1
+            # logging.info("spoof_counts:{}".format(spoof_counts))
 
     def train(self):
         dirs = self.config.DATA_DIR
-        for dir in dirs:
-            train_dirs = [d for d in dirs if d != dir]
-            train = Dataset(self.config, 'train', train_dirs, dir)
-            epochs = int((self.config.MAX_EPOCH + self.config.MAX_EPOCH % len(dirs)) / len(dirs))
-            self._train(train, self.last_epoch + epochs)
-            self.last_epoch += epochs
+        while True:
+            for dir in dirs:
+                train_dirs = [d for d in dirs if d != dir]
+                train = Dataset(self.config, 'train', train_dirs, dir)
+                epochs = int((self.config.MAX_EPOCH + self.config.MAX_EPOCH % len(dirs)) / len(dirs))
+                self._train(train, self.last_epoch + epochs)
+                self.last_epoch += epochs
 
     def _train(self, train, epochs):
-        logging.info("Training")
         config = self.config
         step_per_epoch = config.STEPS_PER_EPOCH
         step_per_epoch_val = config.STEPS_PER_EPOCH_VAL
+        logging.info("Training for {} epochs with {} steps per, and {} per validation"
+                     .format(epochs, step_per_epoch, step_per_epoch_val))
 
         # data stream
         global_step = self.last_epoch * step_per_epoch
@@ -265,8 +273,7 @@ class Model:
                 #     plotResults(fname, _to_plot)
 
             # save the model
-            if (epoch + 1) % 1 == 0:
-                self.checkpoint_manager.save(checkpoint_number=self.last_epoch + epoch + 1)
+            self.checkpoint_manager.save(checkpoint_number=self.last_epoch + epoch + 1)
 
             ''' eval phase'''
             if train.feed_val is not None:

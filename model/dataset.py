@@ -61,6 +61,7 @@ class Dataset():
             _list = sorted(glob.glob(_dir + '/*.dat'))
             data_samples += _list
         dataset = tf.data.Dataset.from_tensor_slices(data_samples)
+        dataset = dataset.shuffle(len(data_samples))
         dataset = dataset.map(map_func=self.parse_fn, num_parallel_calls=autotune)
         dataset = dataset.batch(batch_size=self.config.BATCH_SIZE).prefetch(buffer_size=autotune)
         logging.info("Loaded data set of size {} for testing".format(len(data_samples)))

@@ -41,8 +41,8 @@ def main(argv=None):
     config.DATA_DIR_LIVE = ['/work3/s144852/siw/SiW_M_Live_Binary_Files']
     config.DATA_DIR_TEST = ['/work3/s144852/siw/SiW_M_Live_Test_Binary_Files']
     config.LOG_DIR = './logs/model'
-    # config.MODE = 'training'
-    config.MODE = 'testing'
+    config.MODE = 'training'
+    # config.MODE = 'testing'
     config.STEPS_PER_EPOCH_VAL = 180
     config.display()
 
@@ -53,8 +53,8 @@ def main(argv=None):
 
     # Train the model
     model.compile()
-    # model.train()
-    model.test()
+    model.train()
+    # model.test()
 
 
 main()
