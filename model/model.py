@@ -237,7 +237,7 @@ class Model:
                 train_dirs = [d for d in dirs if d != dir]
                 train_dirs.append(live_dir)
                 train = Dataset(self.config, 'train', train_dirs, dir)
-                epochs = int((self.config.MAX_EPOCH + self.config.MAX_EPOCH % len(dirs)) / len(dirs))
+                epochs = int((self.config.MAX_EPOCH % len(dirs)) / len(dirs)) + self.config.MAX_EPOCH
                 self._train(train, self.last_epoch + epochs)
                 self.last_epoch += epochs
 
@@ -275,7 +275,7 @@ class Model:
                 #     plotResults(fname, _to_plot)
 
             # save the model
-            self.checkpoint_manager.save(checkpoint_number=self.last_epoch + epoch + 1)
+            self.checkpoint_manager.save(checkpoint_number=epoch + 1)
 
             ''' eval phase'''
             if train.feed_val is not None:
