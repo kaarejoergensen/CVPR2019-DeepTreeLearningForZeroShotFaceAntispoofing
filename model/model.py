@@ -231,9 +231,11 @@ class Model:
 
     def train(self):
         dirs = self.config.DATA_DIR
+        live_dir = self.config.DATA_DIR_LIVE[0]
         while True:
             for dir in dirs:
                 train_dirs = [d for d in dirs if d != dir]
+                train_dirs.append(live_dir)
                 train = Dataset(self.config, 'train', train_dirs, dir)
                 epochs = int((self.config.MAX_EPOCH + self.config.MAX_EPOCH % len(dirs)) / len(dirs))
                 self._train(train, self.last_epoch + epochs)
