@@ -245,8 +245,8 @@ class Model:
         config = self.config
         step_per_epoch = config.STEPS_PER_EPOCH
         step_per_epoch_val = config.STEPS_PER_EPOCH_VAL
-        logging.info("Training for {} epochs with {} steps per, and {} per validation"
-                     .format(epochs, step_per_epoch, step_per_epoch_val))
+        logging.info("Training for {} epochs with {} steps per, and {} steps per validation"
+                     .format(epochs - self.last_epoch, step_per_epoch, step_per_epoch_val))
 
         # data stream
         global_step = self.last_epoch * step_per_epoch
