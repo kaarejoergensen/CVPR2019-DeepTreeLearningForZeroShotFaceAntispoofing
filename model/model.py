@@ -213,7 +213,7 @@ class Model:
     def test(self):
         dirs = self.config.DATA_DIR_TEST
         dataset = Dataset(self.config, 'test', dirs)
-        for image, labels in dataset.feed:
+        for image, dmap, labels in dataset.feed:
             cls_pred, route_value, leaf_node_mask = self.dtn(image, labels, False)
             # leaf counts
             spoof_counts = []
