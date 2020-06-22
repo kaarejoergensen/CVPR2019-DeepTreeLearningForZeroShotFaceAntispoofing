@@ -210,6 +210,19 @@ class Model:
         else:
             logging.info("Initializing from scratch.")
 
+    def test(self):
+        dirs = self.config.DATA_DIR_TEST
+        dataset = Dataset(self.config, 'test', dirs)
+        for image, labels in dataset.feed:
+            cls_pred, route_value, leaf_node_mask = self.dtn(image, labels, False)
+            # leaf counts
+            spoof_counts = []
+            for leaf in leaf_node_mask:
+                spoof_count = tf.reduce_sum(leaf[:, 0]).numpy()
+                spoof_counts.append(int(spoof_count))
+            logging.info("spoof_counts:{}"
+                         .format(spoof_counts))
+
     def train(self):
         dirs = self.config.DATA_DIR
         for dir in dirs:
